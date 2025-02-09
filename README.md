@@ -28,15 +28,15 @@ python -m nanospeech.generate --text "The quick brown fox jumps over the lazy do
 
 Use the `--voice` parameter to select the voice used for speech:
 
-`celeste` — [Sample](./samples/celeste.wav)
+`celeste` — [Sample](https://s3.amazonaws.com/lucasnewman.datasets/nanospeech/samples/celeste.wav)
 
-`luna` — [Sample](./samples/luna.wav)
+`luna` — [Sample](https://s3.amazonaws.com/lucasnewman.datasets/nanospeech/samples/luna.wav)
 
-`nash` — [Sample](./samples/nash.wav)
+`nash` — [Sample](https://s3.amazonaws.com/lucasnewman.datasets/nanospeech/samples/nash.wav)
 
-`orion` — [Sample](./samples/orion.wav)
+`orion` — [Sample](https://s3.amazonaws.com/lucasnewman.datasets/nanospeech/samples/orion.wav)
 
-`rhea` — [Sample](./samples/rhea.wav)
+`rhea` — [Sample](https://s3.amazonaws.com/lucasnewman.datasets/nanospeech/samples/rhea.wav)
 
 Note these voices are all based on samples from the [LibriTTS-R](https://www.openslr.org/141/) dataset.
 
