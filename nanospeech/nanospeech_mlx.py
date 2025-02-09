@@ -1315,9 +1315,7 @@ class Nanospeech(nn.Module):
         # duration
 
         if duration is None and self._duration_predictor is not None:
-            print(f"predicting duration for: {text}, {cond.shape}")
             duration = self.predict_duration(cond, text, speed).item()
-            print(f"duration: {duration}")
         elif duration is None:
             raise ValueError("Duration must be provided or a duration predictor must be set.")
 
