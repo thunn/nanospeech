@@ -18,6 +18,9 @@ There are two single-file implementations, one in [PyTorch](./nanospeech/nanospe
 
 ```bash
 pip install nanospeech
+```
+
+```bash
 python -m nanospeech.generate --text "The quick brown fox jumps over the lazy dog."
 ```
 
