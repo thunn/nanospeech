@@ -55,5 +55,8 @@ packages = ["nanospeech"]
 [tool.setuptools.package-data]
 nanospeech = ["voices/*.wav", "voices/*.txt"]
 
+[dependency-groups]
+dev = ["gradio>=5.15.0"]
+
 [project.scripts]
 nanospeech = "nanospeech.generate:main"
