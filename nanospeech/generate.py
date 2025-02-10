@@ -130,6 +130,10 @@ def generate_one(
 
     generated_duration = wave.shape[0] / SAMPLE_RATE
     print(f"Generated {generated_duration:.2f}s of audio in {datetime.datetime.now() - start_date}.")
+    
+    # NOTE: torch model returns a 2D tensor, mlx model returns a 1D tensor - handle both cases
+    if wave.ndim == 2:
+        wave = wave.squeeze(0)
 
     if player is not None:
         player.queue_audio(wave)
