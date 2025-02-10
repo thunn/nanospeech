@@ -148,8 +148,10 @@ def create_demo(prompt_list: dict[str, VoicePrompt], model: 'Nanospeech', header
                 gr.Markdown("## Generated")
                 output_audio = gr.Audio(label="Output Audio")
                 generate_button = gr.Button("Generate", variant="primary")
-            
+        
+        voice_dropdown.change(fn=update_prompt, inputs=voice_dropdown, outputs=[prompt_audio, prompt_text])
         generate_button.click(fn=_generate, inputs=[prompt_audio, prompt_text, input_text, nfe_steps, method, cfg_strength, sway_sampling_coef, speed], outputs=output_audio)
+        
                 
     return demo
                 
