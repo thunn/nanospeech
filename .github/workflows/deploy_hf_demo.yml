@@ -1,0 +1,39 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  workflow_dispatch: # Manual trigger
+
+env:
+  HF_SPACE: thunnai/nanospeech
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git clone https://huggingface.co/spaces/$HF_SPACE huggingface-space
+
+      - name: Copy demo files
+        run: |
+          cp -r demo/* huggingface-space/
+          cp -r voice_samples huggingface-space/
+
+      - name: Push to Hugging Face
+        working-directory: huggingface-space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git add .
+          git commit -m "Update demo from GitHub Actions"
+          git push https://oauth2:$HF_TOKEN@huggingface.co/spaces/$HF_SPACE main

@@ -1,33 +1,37 @@
 import os 
 import torch
-import spaces
 from glob import glob
 from dataclasses import dataclass
 
 import gradio as gr
 import soundfile as sf
-from nanospeech.nanospeech_torch import Nanospeech
 from nanospeech.generate import generate_one, SAMPLE_RATE, split_sentences
 import numpy as np
 from typing import Optional
+import importlib.util
 
-
-PROMPT_DIR = 'nanospeech/voices'
+if importlib.util.find_spec("mlx") is not None:
+    from nanospeech.nanospeech_mlx import Nanospeech
+elif importlib.util.find_spec("torch") is not None:
+    from nanospeech.nanospeech_torch import Nanospeech
 
 # Note: gradio expects audio as int16, so we need to convert to float32 when loading and convert back when returning
 
 def convert_audio_int16_to_float32(audio: np.ndarray) -> np.ndarray:
-    return audio.astype(np.float32) / 32768.0
+    return audio.astype(np.float32) / 32767.0
+
+def normalize_audio(audio: np.ndarray) -> np.ndarray:
+    return audio / np.max(np.abs(audio)) if np.max(np.abs(audio)) > 1 else audio
 
 def convert_audio_float32_to_int16(audio: np.ndarray) -> np.ndarray:
-    return (np.clip(audio, -1.0, 1.0) * 32768.0).astype(np.int16)
+    return (normalize_audio(audio) * 32767.0).astype(np.int16)
 
 @dataclass
 class VoicePrompt:
     wav_path: str
     text: str
 
-def get_prompt_list(prompt_dir=PROMPT_DIR):
+def get_prompt_list(prompt_dir: str):
     wav_paths = glob(os.path.join(prompt_dir, '*.wav'))
     
     prompt_lookup: dict[str, VoicePrompt] = {}
@@ -53,7 +57,7 @@ def create_demo(prompt_list: dict[str, VoicePrompt], model: 'Nanospeech'):
             prompt_list[voice_name].wav_path,
             prompt_list[voice_name].text
         )
-    @spaces.GPU(progress=gr.Progress(track_tqdm=True))
+
     def _generate(prompt_audio: str, prompt_text: str, input_text: str, nfe_steps: int = 8, method: str = "rk4", cfg_strength: float = 2.0, sway_sampling_coef: float = -1.0, speed: float = 1.0, seed: Optional[int] = None):
         
         print(f'generating: {input_text}, prompt: {prompt_text}, prompt_audio: {prompt_audio}')
@@ -73,7 +77,6 @@ def create_demo(prompt_list: dict[str, VoicePrompt], model: 'Nanospeech'):
         # Split input text into sentences
         sentences = split_sentences(input_text)
         is_single_generation = len(sentences) <= 1
-            
         
         if is_single_generation:
             wave = generate_one(
@@ -91,6 +94,8 @@ def create_demo(prompt_list: dict[str, VoicePrompt], model: 'Nanospeech'):
             )
             if hasattr(wave, 'numpy'):
                 wave = wave.numpy()
+            else:
+                wave = np.array(wave)
         else:
             # Generate multiple sentences and concatenate
             output = []
@@ -110,6 +115,9 @@ def create_demo(prompt_list: dict[str, VoicePrompt], model: 'Nanospeech'):
                 )
                 if hasattr(wave, 'numpy'):
                     wave = wave.numpy()
+                else:
+                    wave = np.array(wave)
+
                 output.append(wave)
             
             wave = np.concatenate(output, axis=0)
@@ -118,7 +126,7 @@ def create_demo(prompt_list: dict[str, VoicePrompt], model: 'Nanospeech'):
         
     
     with gr.Blocks() as demo:
-        gr.Markdown("# (Unofficial) Nanospeech Demo")
+        gr.Markdown("# Nanospeech Demo")
         gr.Markdown("A simple, hackable text-to-speech system in PyTorch and MLX - [github](https://github.com/lucasnewman/nanospeech)")
 
         with gr.Group():
@@ -156,11 +164,11 @@ def create_demo(prompt_list: dict[str, VoicePrompt], model: 'Nanospeech'):
                 
 
 if __name__ == "__main__":
-    
-    
+    PROMPT_DIR = 'nanospeech/voices'
+
     # Preload the model
     model = Nanospeech.from_pretrained("lucasnewman/nanospeech")
-    prompt_list = get_prompt_list()
+    prompt_list = get_prompt_list(PROMPT_DIR)
     
     demo = create_demo(prompt_list, model)
     demo.launch()
