@@ -1253,7 +1253,7 @@ class Nanospeech(nn.Module):
             out = out.permute(0, 2, 1)
             out = self.vocoder(out.cpu())
 
-        return out, trajectory
+        return out.squeeze(0), trajectory
 
     @classmethod
     def from_pretrained(cls, hf_model_name_or_path: str) -> Nanospeech:

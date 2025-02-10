@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nanospeech"
-version = "0.0.2"
+version = "0.0.3"
 authors = [{name = "Lucas Newman", email = "lucasnewman@me.com"}]
 license = {text = "MIT"}
 description = "Simple, hackable text-to-speech with PyTorch or MLX."
