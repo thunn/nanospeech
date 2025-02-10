@@ -1,0 +1,4 @@
+gradio
+soundfile
+git+https://github.com/thunn/nanospeech.git
+numpy
